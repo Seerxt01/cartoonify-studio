@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Flask uploads (don't commit user images)
+static/uploads/*
+static/results/*
+
+# Keep the folders but ignore contents
+!static/uploads/.gitkeep
+!static/results/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/

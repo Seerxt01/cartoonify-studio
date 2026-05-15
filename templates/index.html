@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cartoonify Studio</title>
+
+  <!-- Tailwind CSS (via CDN — no install needed) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Our custom CSS -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body class="min-h-screen text-white">
+
+  <!-- ═══════════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════════ -->
+  <header class="py-6 px-6 flex items-center justify-between border-b border-white/10">
+    <div class="flex items-center gap-3">
+      <div class="logo-icon">🎨</div>
+      <h1 class="site-title">Cartoonify Studio</h1>
+    </div>
+    <span class="badge">OpenCV Powered</span>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════════════ -->
+  <section class="hero text-center py-14 px-6">
+    <p class="hero-tag">Transform Any Photo Into Art</p>
+    <h2 class="hero-headline">Turn Reality Into<br/><span class="gradient-text">Cartoon Magic</span></h2>
+    <p class="hero-sub">Upload a photo · Pick a style · Download your artwork</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       MAIN CARD
+  ═══════════════════════════════════════════════ -->
+  <main class="max-w-5xl mx-auto px-6 pb-20">
+
+    <!-- ── Step 1: Upload ───────────────────────────────── -->
+    <div class="card mb-6" id="upload-card">
+      <div class="step-label">Step 01</div>
+      <h3 class="card-title">Upload Your Photo</h3>
+
+      <!-- Drag-and-drop zone -->
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" accept="image/*" class="hidden" />
+        <div class="drop-content" id="drop-content">
+          <div class="drop-icon">📸</div>
+          <p class="drop-primary">Drag & drop your image here</p>
+          <p class="drop-secondary">or</p>
+          <button class="btn-upload" onclick="document.getElementById('file-input').click()">
+            Browse Files
+          </button>
+          <p class="drop-hint">Supports JPG, PNG, WEBP</p>
+        </div>
+      </div>
+
+      <!-- Upload progress bar (hidden until upload starts) -->
+      <div class="progress-wrap hidden" id="progress-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+        <p class="progress-label" id="progress-label">Uploading…</p>
+      </div>
+    </div>
+
+    <!-- ── Step 2: Style Picker ─────────────────────────── -->
+    <div class="card mb-6 opacity-40 pointer-events-none transition-all" id="style-card">
+      <div class="step-label">Step 02</div>
+      <h3 class="card-title">Choose Your Style</h3>
+
+      <div class="style-grid">
+
+        <button class="style-btn active" data-style="classic">
+          <span class="style-icon">🎭</span>
+          <span class="style-name">Classic Cartoon</span>
+          <span class="style-desc">Flat colours + bold outlines</span>
+        </button>
+
+        <button class="style-btn" data-style="sketch">
+          <span class="style-icon">✏️</span>
+          <span class="style-name">Pencil Sketch</span>
+          <span class="style-desc">Hand-drawn grey lines</span>
+        </button>
+
+        <button class="style-btn" data-style="anime">
+          <span class="style-icon">⛩️</span>
+          <span class="style-name">Anime Style</span>
+          <span class="style-desc">Vivid colours + crisp edges</span>
+        </button>
+
+        <button class="style-btn" data-style="comic">
+          <span class="style-icon">💥</span>
+          <span class="style-name">Comic Style</span>
+          <span class="style-desc">Bold ink + punchy colours</span>
+        </button>
+
+        <button class="style-btn" data-style="bw">
+          <span class="style-icon">🎞️</span>
+          <span class="style-name">B&W Cartoon</span>
+          <span class="style-desc">Classic newspaper look</span>
+        </button>
+
+      </div>
+
+      <button class="btn-cartoonify" id="cartoonify-btn" onclick="runCartoonify()">
+        <span id="btn-text">✨ Cartoonify!</span>
+        <span id="btn-spinner" class="hidden spinner"></span>
+      </button>
+    </div>
+
+    <!-- ── Step 3: Result ────────────────────────────────── -->
+    <div class="card hidden" id="result-card">
+      <div class="step-label">Step 03</div>
+      <h3 class="card-title">Your Cartoon Art</h3>
+
+      <div class="compare-grid">
+        <div class="img-wrap">
+          <p class="img-label">Original Photo</p>
+          <img id="original-img" src="" alt="Original" class="result-img" />
+        </div>
+        <div class="img-wrap">
+          <p class="img-label">Cartoon Result</p>
+          <img id="result-img" src="" alt="Result" class="result-img" />
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-download" id="download-btn">⬇ Download Image</button>
+        <button class="btn-reset" onclick="resetAll()">↩ Try Another Photo</button>
+      </div>
+    </div>
+
+    <!-- ── Error toast ───────────────────────────────────── -->
+    <div class="toast hidden" id="toast"></div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════
+       HOW IT WORKS  (simple explainer)
+  ═══════════════════════════════════════════════ -->
+  <section class="how-it-works py-16 px-6">
+    <div class="max-w-4xl mx-auto">
+      <h3 class="section-title text-center mb-10">How It Works</h3>
+      <div class="how-grid">
+        <div class="how-step">
+          <div class="how-num">01</div>
+          <h4>Upload</h4>
+          <p>Your image is sent to the Flask backend and saved securely on the server.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">02</div>
+          <h4>Process</h4>
+          <p>OpenCV applies filters — bilateral blur, edge detection, colour effects — to transform the photo.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">03</div>
+          <h4>Download</h4>
+          <p>The processed image is served back to your browser, ready to save and share.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════════ -->
+  <footer class="py-8 text-center border-t border-white/10">
+    <p class="text-white/40 text-sm font-light">
+      Built with Python · Flask · OpenCV &nbsp;|&nbsp; Cartoonify Studio
+    </p>
+  </footer>
+
+  <!-- Our JavaScript -->
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
