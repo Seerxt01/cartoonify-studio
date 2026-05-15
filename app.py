@@ -9,7 +9,10 @@
 
 import os
 import uuid
-from flask import Flask, request, jsonify, send_file, render_template
+try:
+    from flask import Flask, request, jsonify, send_file, render_template
+except ImportError as exc:
+    raise ImportError("Flask is not installed. Install it with `pip install flask`. ") from exc
 from cartoonify import cartoonify_image  # our image processing functions
 
 # ── Create the Flask app ──────────────────────────────────────
